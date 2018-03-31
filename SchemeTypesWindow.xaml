@@ -1,0 +1,30 @@
+﻿<Window x:Class="Вязание.Сборник_схем.SchemeTypesWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Вязание.Сборник_схем"
+        mc:Ignorable="d"
+        Title="Коллекция типов изделий" Height="250" Width="500" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Closed="Window_Closed">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="2*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="1*"/>
+        </Grid.RowDefinitions>
+
+        <ListBox x:Name="schemeTypesListBox" Grid.Column="0" Grid.Row="0" Grid.RowSpan="3" Margin="10" SelectionChanged="SchemeTypesListBox_SelectionChanged"/>
+
+        <Button x:Name="addTypeButton" Grid.Column="1" Grid.Row="0" Content="Добавить" VerticalAlignment="Center" Height="25" Click="AddTypeButton_Click"/>
+        <Button x:Name="updateTypeButton" Grid.Column="1" Grid.Row="1" Content="Обновить" VerticalAlignment="Center" Height="25" IsEnabled="False" Click="UpdateTypeButton_Click"/>
+        <Button x:Name="deleteTypeButton" Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Content="Удалить" VerticalAlignment="Center" Height="25" HorizontalAlignment="Center" Width="150" IsEnabled="False" Click="DeleteTypeButton_Click"/>
+
+        <TextBox x:Name="addTypeTextBox" Grid.Column="2" Grid.Row="0" ToolTip="Введите название типа изделия" Height="22" Text="" VerticalAlignment="Center" Margin="10,0" VerticalContentAlignment="Center" KeyDown="AddTypeTextBox_KeyDown"/>
+        <TextBox x:Name="updateTypeTextBox" Grid.Column="2" Grid.Row="1" ToolTip="Исправьте название типа изделия" Height="22" Text="" VerticalAlignment="Center" Margin="10,0" VerticalContentAlignment="Center" IsEnabled="False" KeyDown="UpdateTypeTextBox_KeyDown"/>
+    </Grid>
+</Window>
