@@ -190,6 +190,9 @@ namespace Вязание.Сборник_схем
                     case "rtf":
                         imageUri = "images\\doc.png";
                         break;
+                    case "pdf":
+                        imageUri = "images\\pdf.png";
+                        break;
                     case "mp4":
                         imageUri = "images\\video.png";
                         break;
@@ -222,13 +225,20 @@ namespace Вязание.Сборник_схем
 
         private void HyperlinkToSource_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start(schemeInterface.GetSelectedScheme().HyperlinkToSource);
+            try
+            {
+                System.Diagnostics.Process.Start(schemeInterface.GetSelectedScheme().HyperlinkToSource);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(this, "Неправильный адрес", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void OpenFileBtn_Click(object sender, RoutedEventArgs e)
         {
             var appUri = new Uri(System.Reflection.Assembly.GetEntryAssembly().Location);
-            var fileUri = new Uri(appUri, schemeInterface.GetSelectedScheme().FilesPath); // Absolut path
+            var fileUri = new Uri(appUri, schemeInterface.GetSelectedScheme().FilesPath); // Absolute path
             var filePath = fileUri.LocalPath;
             if (File.Exists(filePath) || Directory.Exists(filePath))
                 System.Diagnostics.Process.Start(filePath);

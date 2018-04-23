@@ -84,7 +84,14 @@ namespace Вязание.Сборник_схем
 
         private void HyperlinkToSource_Click(object sender, RoutedEventArgs e)
         {
-            System.Diagnostics.Process.Start(hyperlinkToSourceTextBox.Text);
+            try
+            {
+                System.Diagnostics.Process.Start(hyperlinkToSourceTextBox.Text);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(this, "Неправильный адрес", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void SpecifyFilesPathButton_Click(object sender, RoutedEventArgs e)
