@@ -35,7 +35,21 @@
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <ComboBox x:Name="schemeTypeComboBox" Grid.Column="0" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <Grid Grid.Column="0" Margin="10,0,0,0">
+                    <ComboBox x:Name="schemeTypeComboBox" VerticalAlignment="Center"/>
+                    <TextBlock IsHitTestVisible="False" Text="Выберите тип изделия" Margin="6,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="DarkGray">
+                        <TextBlock.Style>
+                            <Style TargetType="{x:Type TextBlock}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=schemeTypeComboBox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
                 <Button x:Name="editTypesCollection" Grid.Column="1" Content="Изменить коллекцию типов" VerticalAlignment="Center" Margin="10,0" Click="EditTypesCollection_Click"/>
             </Grid>
 
