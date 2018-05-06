@@ -158,7 +158,8 @@ namespace Вязание.Сборник_схем
 
             schemeName.Content = scheme.Name;
             hyperlinkToSource.Inlines.Clear();
-            if (scheme.HyperlinkToSource.Length > "http://...".Length)
+            if (scheme.HyperlinkToSource != null
+                && scheme.HyperlinkToSource.Length > "http://...".Length)
             {
                 hyperlinkToSource.Inlines.Add("Ссылка на источник в Интернете");
                 hyperlinkToSourceTextBlock.IsEnabled = true;
@@ -169,15 +170,68 @@ namespace Вязание.Сборник_схем
                 hyperlinkToSource.Inlines.Add("Ссылка на источник не указана");
                 hyperlinkToSourceTextBlock.IsEnabled = false;
             }
+
             openFileBtn.IsEnabled = true;
             openFileBtn.ToolTip = scheme.FilesPath;
 
             var imageUri = "";
-            if (scheme.FilesPath[scheme.FilesPath.Length - 1] == '\\') // директория
+            if (SchemeFileExist())
+                imageUri = GetIconUriByFileExtension(scheme.FilesPath);
+            else
+                imageUri = "images\\warning.png";
+            openFileImage.Source = new BitmapImage(new Uri(imageUri, UriKind.Relative));
+            openFileImage.Opacity = 1;
+
+            previewImage.Source = databaseManager.GetImageSourceFromDb(scheme.PreviewImageId);
+
+            previewImage.Opacity = 1;
+            editSchemeBtn.IsEnabled = true;
+            removeSchemeBtn.IsEnabled = true;
+        }
+
+        private void HyperlinkToSource_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                System.Diagnostics.Process.Start(schemeInterface.GetSelectedScheme().HyperlinkToSource);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(this, "Неправильный адрес", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void OpenFileBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var filePath = GetSchemeFilePath();
+            if (SchemeFileExist())
+                System.Diagnostics.Process.Start(filePath);
+            else
+                MessageBox.Show(this, "Файл не найден!\n\nОтредактируйте схему и укажите верный путь к файлу с описанием",
+                    "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        private void aboutAppButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            var aboutAppWnd = new AboutApp();
+            aboutAppWnd.Owner = this;
+            aboutAppWnd.ShowDialog();
+        }
+
+        /// <summary>
+        /// Выбирает иконку в зависимости от того, папка это или файл, а также его расширения
+        /// </summary>
+        /// <param name="filesPath">Путь к файлам, указанный пользователем при добавлении схемы</param>
+        /// <returns>Путь (Uri) иконки</returns>
+        private string GetIconUriByFileExtension(string filePath)
+        {
+            var imageUri = "";
+            var attr = File.GetAttributes(filePath); // get the file attributes for file or directory
+            if (attr.HasFlag(FileAttributes.Directory)) // директория
                 imageUri = "images\\folder.png";
             else // файл
             {
-                var tempParts = scheme.FilesPath.Split('.');
+                var tempParts = filePath.Split('.');
                 var ext = tempParts[tempParts.Length - 1];
                 switch (ext)
                 {
@@ -213,38 +267,30 @@ namespace Вязание.Сборник_схем
                         break;
                 }
             }
-            openFileImage.Source = new BitmapImage(new Uri(imageUri, UriKind.Relative));
-            openFileImage.Opacity = 1;
-
-            previewImage.Source = databaseManager.GetImageSourceFromDb(scheme.PreviewImageId);
-
-            previewImage.Opacity = 1;
-            editSchemeBtn.IsEnabled = true;
-            removeSchemeBtn.IsEnabled = true;
+            return imageUri;
         }
 
-        private void HyperlinkToSource_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                System.Diagnostics.Process.Start(schemeInterface.GetSelectedScheme().HyperlinkToSource);
-            }
-            catch (Exception)
-            {
-                MessageBox.Show(this, "Неправильный адрес", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
-        private void OpenFileBtn_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// Вычисляет абсолютный путь до файла или папки, указанных пользователем при добавлении схемы
+        /// </summary>
+        /// <returns></returns>
+        private string GetSchemeFilePath()
         {
             var appUri = new Uri(System.Reflection.Assembly.GetEntryAssembly().Location);
             var fileUri = new Uri(appUri, schemeInterface.GetSelectedScheme().FilesPath); // Absolute path
-            var filePath = fileUri.LocalPath;
+            return fileUri.LocalPath;
+        }
+
+        /// <summary>
+        /// Проверяет существует ли файл или папка, указанные пользователем при добавлении схемы
+        /// </summary>
+        private bool SchemeFileExist()
+        {
+            var filePath = GetSchemeFilePath();
             if (File.Exists(filePath) || Directory.Exists(filePath))
-                System.Diagnostics.Process.Start(filePath);
+                return true;
             else
-                MessageBox.Show(this, "Файл не найден!\n\nОтредактируйте схему и укажите верный путь к файлу с описанием",
-                    "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+                return false;
         }
     }
 }

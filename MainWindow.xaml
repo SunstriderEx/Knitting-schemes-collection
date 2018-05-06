@@ -19,22 +19,8 @@
                 <RowDefinition Height="45"/>
             </Grid.RowDefinitions>
             <TreeView x:Name="schemesTreeView" Grid.Row="0" Margin="10,10,10,0" BorderBrush="#FFABADB3"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch">
-                <!--<TreeViewItem >
-                    <TreeViewItem.Header>
-                        <Label Content="North America" Background="#FFFBCACA" Width= "{Binding MaxWidth, ElementName=schemesTreeView, Mode=Default}"/>
-                    </TreeViewItem.Header>
-
-                    <TreeViewItem>
-                        <TreeViewItem.Header>
-                            <StackPanel Orientation="Horizontal" Background="#FFFFFBAF">
-                                <Image Source="images/video.png"></Image>
-                                <Label Content="Coutry N 1"></Label>
-                            </StackPanel>
-                        </TreeViewItem.Header>
-                    </TreeViewItem>
-                </TreeViewItem> -->
-            </TreeView>
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalContentAlignment="Stretch"/>
+            
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
@@ -47,19 +33,28 @@
             </Grid>
         </Grid>
 
-        <Label x:Name="schemeName" Grid.Column="1" Content="Название схемы" HorizontalAlignment="Left" Margin="0,10,10,0" VerticalAlignment="Top" FontSize="24" Height="42"/>
-        <TextBlock x:Name="hyperlinkToSourceTextBlock" Grid.Column="1" IsEnabled="False" HorizontalAlignment="Left" Margin="5,57,0,0" VerticalAlignment="Top" Height="16">
-            <Hyperlink x:Name="hyperlinkToSource" Click="HyperlinkToSource_Click">Ссылка на источник в Интернете</Hyperlink>
-        </TextBlock>
+        <DockPanel Grid.Column="1" LastChildFill="False">
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="50"/>
+                </Grid.ColumnDefinitions>
+                <Label x:Name="schemeName" Grid.Column="0" Content="Название схемы" HorizontalAlignment="Left" Margin="0,10,10,0" VerticalAlignment="Top" FontSize="24" Height="42"/>
+                <Image x:Name="aboutAppButton" Grid.Column="1" Source="images/about.png" HorizontalAlignment="Right" VerticalAlignment="Top" Height="24" Margin="0,10,10,0" MouseLeftButtonUp="aboutAppButton_MouseLeftButtonUp" Opacity="0.5"/>
+            </Grid>
+            <TextBlock x:Name="hyperlinkToSourceTextBlock" DockPanel.Dock="Top" IsEnabled="False" HorizontalAlignment="Left" Margin="5,10,0,0" VerticalAlignment="Top" Height="16">
+                <Hyperlink x:Name="hyperlinkToSource" Click="HyperlinkToSource_Click">Ссылка на источник в Интернете</Hyperlink>
+            </TextBlock>
 
-        <Button x:Name="openFileBtn" ToolTip="Путь к файлу(-ам)" Grid.Column="1" Margin="5,90,10,0" VerticalAlignment="Top" Height="74" HorizontalAlignment="Left" Background="#FFF7F7F7" IsEnabled="False" Click="OpenFileBtn_Click">
-            <StackPanel Grid.Column="1" Orientation="Horizontal" Height="64" Margin="5,0" VerticalAlignment="Top" HorizontalAlignment="Left">
-                <Image x:Name="openFileImage" Source="images/knitting.ico" Opacity="0.5" Margin="5"/>
-                <Label Content="Открыть описание" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
-            </StackPanel>
-        </Button>
+            <Button x:Name="openFileBtn" DockPanel.Dock="Top" ToolTip="Путь к файлу(-ам)" Margin="5,20,10,0" VerticalAlignment="Top" Height="74" HorizontalAlignment="Left" Background="#FFF7F7F7" IsEnabled="False" Click="OpenFileBtn_Click">
+                <StackPanel Orientation="Horizontal" Height="64" Margin="5,0" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <Image x:Name="openFileImage" Source="images/knitting.ico" Opacity="0.5" Margin="5"/>
+                    <Label Content="Открыть описание" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center"/>
+                </StackPanel>
+            </Button>
 
-        <Label Content="Иллюстрация:" Grid.Column="1" HorizontalAlignment="Left" Margin="0,174,0,0" VerticalAlignment="Top"/>
-        <Image x:Name="previewImage" Grid.Column="1" Margin="0,205,10,10" Source="images/preview.png" Opacity="0.15" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <Label DockPanel.Dock="Top" Content="Иллюстрация:" HorizontalAlignment="Left" Margin="0,10,0,3" VerticalAlignment="Top"/>
+            <Image x:Name="previewImage" DockPanel.Dock="Top" Margin="0,0,10,10" Source="images/preview.png" Opacity="0.15" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        </DockPanel>
     </Grid>
 </Window>
