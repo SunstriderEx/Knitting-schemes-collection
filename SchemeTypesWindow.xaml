@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Вязание.Сборник_схем"
         mc:Ignorable="d"
-        Title="Коллекция типов изделий" Height="250" Width="500" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Closed="Window_Closed">
+        Title="Коллекция типов изделий" Height="250" Width="500" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Closed="Window_Closed" KeyUp="Window_KeyUp">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="2*"/>

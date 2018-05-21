@@ -242,5 +242,11 @@ namespace Вязание.Сборник_схем
             else
                 owner.UpdateSchemesList();
         }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+                CancelButton_Click(this, new RoutedEventArgs());
+        }
     }
 }
