@@ -20,15 +20,16 @@
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="1*"/>
+                <RowDefinition Height="0.5*"/>
                 <RowDefinition Height="1*"/>
                 <RowDefinition Height="3*"/>
             </Grid.RowDefinitions>
 
-            <Label Grid.Row="0" Grid.Column="0" Content="Тип изделия" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26" Width="78"/>
-            <Label Grid.Row="1" Grid.Column="0" Content="Название схемы" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26" Width="100"/>
-            <Label Grid.Row="2" Grid.Column="0" Content="Ссылка на источник в Интернете" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26" Width="192"/>
-            <Label Grid.Row="3" Grid.Column="0" Content="Файл или папка с описанием" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26" Width="170"/>
-            <Label Grid.Row="4" Grid.Column="0" Content="Иллюстрация" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26" Width="85"/>
+            <Label Grid.Row="0" Grid.Column="0" Content="Тип изделия" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26"/>
+            <Label Grid.Row="1" Grid.Column="0" Content="Название схемы" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26"/>
+            <Label Grid.Row="2" Grid.Column="0" Content="Ссылка на источник в Интернете" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26"/>
+            <Label x:Name="descFileLabel" Grid.Row="4" Grid.Column="0" Content="Файл или папка с описанием" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26"/>
+            <Label Grid.Row="5" Grid.Column="0" Content="Иллюстрация" HorizontalAlignment="Left" Margin="5,0,0,0" VerticalAlignment="Center" Height="26"/>
 
             <Grid Grid.Row="0"  Grid.Column="1">
                 <Grid.ColumnDefinitions>
@@ -53,15 +54,29 @@
                 <Button x:Name="editTypesCollection" Grid.Column="1" Content="Изменить коллекцию типов" VerticalAlignment="Center" Margin="10,0" Click="EditTypesCollection_Click"/>
             </Grid>
 
-            <TextBox x:Name="schemeNameTextBox" Grid.Row="1" Grid.Column="1" Height="22" Margin="10,0" Text="Название схемы..." VerticalAlignment="Center" VerticalContentAlignment="Center"/>
-
+            <Grid Grid.Row="1" Grid.Column="1" Margin="10,0" >
+                <TextBox x:Name="schemeNameTextBox" Text="" Height="22" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="SchemeNameTextBox_TextChanged" LostFocus="SchemeNameTextBox_LostFocus"/>
+                <TextBlock IsHitTestVisible="False" Text="Название схемы..." Margin="3,0,0,0" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="DarkGray">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=schemeNameTextBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+            
             <Grid Grid.Row="2" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
-                <Grid Grid.Column="0" Height="22" Margin="10,0,0,0">
-                    <TextBox x:Name="hyperlinkToSourceTextBox" VerticalAlignment="Center" VerticalContentAlignment="Center"/>
+                <Grid Grid.Column="0" Margin="10,0,0,0">
+                    <TextBox x:Name="hyperlinkToSourceTextBox" Height="22" VerticalAlignment="Center" VerticalContentAlignment="Center" TextChanged="HyperlinkToSourceTextBox_TextChanged" LostFocus="HyperlinkToSourceTextBox_LostFocus"/>
                     <TextBlock IsHitTestVisible="False" Text="http://" Margin="3,0,0,1" VerticalAlignment="Center" HorizontalAlignment="Left" Foreground="DarkGray">
                         <TextBlock.Style>
                             <Style TargetType="{x:Type TextBlock}">
@@ -80,7 +95,9 @@
                 </TextBlock>
             </Grid>
 
-            <Grid Grid.Row="3" Grid.Column="1">
+            <CheckBox x:Name="linkOnlyCheckBox" Grid.Row="3" Grid.Column="1" Content="без файлов на ПК, только источник в Интернете" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Checked="LinkOnlyCheckBox_Checked" Unchecked="LinkOnlyCheckBox_Unchecked"/>
+            
+            <Grid Grid.Row="4" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="2*"/>
@@ -90,7 +107,7 @@
                          <!--IsReadOnly="True" Background="WhiteSmoke"-->
             </Grid>
 
-            <Grid Grid.Row="4" Grid.Column="1">
+            <Grid Grid.Row="5" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*"/>
                     <ColumnDefinition Width="2*"/>

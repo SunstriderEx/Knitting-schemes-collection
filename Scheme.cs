@@ -8,6 +8,14 @@
         public string FilesPath { get; set; }
         public string PreviewImageId { get; set; }
         public string TypeName { get; set; }
+
+        /// <summary>
+        /// Проверяет, был ли при создании схемы указан путь к локальным файлам (true), или же только интернет-источник (false)
+        /// </summary>
+        public bool HasLocalFiles()
+        {
+            return (FilesPath != null && FilesPath != "");
+        }
     }
 
     public class SchemeType

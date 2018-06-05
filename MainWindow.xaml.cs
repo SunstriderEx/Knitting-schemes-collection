@@ -1,19 +1,10 @@
 ﻿using LiteDB;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace Вязание.Сборник_схем
 {
@@ -159,7 +150,7 @@ namespace Вязание.Сборник_схем
             schemeName.Content = scheme.Name;
             hyperlinkToSource.Inlines.Clear();
             if (scheme.HyperlinkToSource != null
-                && scheme.HyperlinkToSource.Length > "http://...".Length)
+                && scheme.HyperlinkToSource.Length >= "http://#.##".Length)
             {
                 hyperlinkToSource.Inlines.Add("Ссылка на источник в Интернете");
                 hyperlinkToSourceTextBlock.IsEnabled = true;
@@ -172,13 +163,23 @@ namespace Вязание.Сборник_схем
             }
 
             openFileBtn.IsEnabled = true;
-            openFileBtn.ToolTip = scheme.FilesPath;
 
             var imageUri = "";
-            if (SchemeFileExist())
-                imageUri = GetIconUriByFileExtension(scheme.FilesPath);
-            else
-                imageUri = "images\\warning.png";
+            if (scheme.HasLocalFiles()) // путь к файлам указан
+            {
+                openFileBtn.ToolTip = scheme.FilesPath;
+
+                if (schemeInterface.SchemeFileExist())
+                    imageUri = schemeInterface.GetIconUriByFileExtension(scheme.FilesPath);
+                else
+                    imageUri = "images\\warning.png";
+            }
+            else // только источник в интернете, т.е. без локальных файлов
+            {
+                openFileBtn.ToolTip = scheme.HyperlinkToSource + " (только интернет-источник)";
+
+                imageUri = schemeInterface.GetIconUriBySiteUrl(scheme.HyperlinkToSource);
+            }
             openFileImage.Source = new BitmapImage(new Uri(imageUri, UriKind.Relative));
             openFileImage.Opacity = 1;
 
@@ -203,94 +204,28 @@ namespace Вязание.Сборник_схем
 
         private void OpenFileBtn_Click(object sender, RoutedEventArgs e)
         {
-            var filePath = GetSchemeFilePath();
-            if (SchemeFileExist())
-                System.Diagnostics.Process.Start(filePath);
-            else
-                MessageBox.Show(this, "Файл не найден!\n\nОтредактируйте схему и укажите верный путь к файлу с описанием",
-                    "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+            var scheme = schemeInterface.GetSelectedScheme();
+            if (scheme.HasLocalFiles()) // путь к файлам указан
+            {
+                var filePath = schemeInterface.GetSchemeFilePath();
+                if (schemeInterface.SchemeFileExist())
+                    System.Diagnostics.Process.Start(filePath);
+                else
+                    MessageBox.Show(this, "Файл не найден!\n\nОтредактируйте схему и укажите верный путь к файлу с описанием",
+                        "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            else // только источник в интернете, т.е. без локальных файлов
+            {
+                HyperlinkToSource_Click(this, new RoutedEventArgs());
+            }
+            
         }
 
-        private void aboutAppButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        private void AboutAppButton_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             var aboutAppWnd = new AboutApp();
             aboutAppWnd.Owner = this;
             aboutAppWnd.ShowDialog();
-        }
-
-        /// <summary>
-        /// Выбирает иконку в зависимости от того, папка это или файл, а также его расширения
-        /// </summary>
-        /// <param name="filesPath">Путь к файлам, указанный пользователем при добавлении схемы</param>
-        /// <returns>Путь (Uri) иконки</returns>
-        private string GetIconUriByFileExtension(string filePath)
-        {
-            var imageUri = "";
-            var attr = File.GetAttributes(filePath); // get the file attributes for file or directory
-            if (attr.HasFlag(FileAttributes.Directory)) // директория
-                imageUri = "images\\folder.png";
-            else // файл
-            {
-                var tempParts = filePath.Split('.');
-                var ext = tempParts[tempParts.Length - 1];
-                switch (ext)
-                {
-                    case "doc":
-                        imageUri = "images\\doc.png";
-                        break;
-                    case "docx":
-                        imageUri = "images\\doc.png";
-                        break;
-                    case "rtf":
-                        imageUri = "images\\doc.png";
-                        break;
-                    case "pdf":
-                        imageUri = "images\\pdf.png";
-                        break;
-                    case "mp4":
-                        imageUri = "images\\video.png";
-                        break;
-                    case "avi":
-                        imageUri = "images\\video.png";
-                        break;
-                    case "mov":
-                        imageUri = "images\\video.png";
-                        break;
-                    case "m4v":
-                        imageUri = "images\\video.png";
-                        break;
-                    case "mkv":
-                        imageUri = "images\\video.png";
-                        break;
-                    default:
-                        imageUri = "images\\knitting.ico";
-                        break;
-                }
-            }
-            return imageUri;
-        }
-
-        /// <summary>
-        /// Вычисляет абсолютный путь до файла или папки, указанных пользователем при добавлении схемы
-        /// </summary>
-        /// <returns></returns>
-        private string GetSchemeFilePath()
-        {
-            var appUri = new Uri(System.Reflection.Assembly.GetEntryAssembly().Location);
-            var fileUri = new Uri(appUri, schemeInterface.GetSelectedScheme().FilesPath); // Absolute path
-            return fileUri.LocalPath;
-        }
-
-        /// <summary>
-        /// Проверяет существует ли файл или папка, указанные пользователем при добавлении схемы
-        /// </summary>
-        private bool SchemeFileExist()
-        {
-            var filePath = GetSchemeFilePath();
-            if (File.Exists(filePath) || Directory.Exists(filePath))
-                return true;
-            else
-                return false;
         }
     }
 }

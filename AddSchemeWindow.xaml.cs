@@ -1,18 +1,11 @@
 ﻿using LiteDB;
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace Вязание.Сборник_схем
 {
@@ -28,6 +21,10 @@ namespace Вязание.Сборник_схем
         private string newPreviewImagePath;
 
         private bool noCloseEvent = false;
+
+        private Brush textBoxBackgroundDefault;
+        private Brush buttonBackgroundDefault;
+        private Brush backgroundError = Brushes.Pink;
 
         public AddSchemeWindow(DatabaseManager databaseManager)
         {
@@ -48,7 +45,10 @@ namespace Вязание.Сборник_схем
             schemeTypeComboBox.SelectedIndex = schemeTypeComboBox.Items.IndexOf(scheme.TypeName);
             schemeNameTextBox.Text = scheme.Name;
             hyperlinkToSourceTextBox.Text = scheme.HyperlinkToSource;
-            filesPathTextBox.Text = scheme.FilesPath;
+            if (scheme.FilesPath == null || scheme.FilesPath == "")
+                linkOnlyCheckBox.IsChecked = true;
+            else
+                filesPathTextBox.Text = scheme.FilesPath;
 
             previewImage.Source = databaseManager.GetImageSourceFromDb(scheme.PreviewImageId);
 
@@ -60,6 +60,9 @@ namespace Вязание.Сборник_схем
         {
             this.databaseManager = databaseManager;
             UpdateTypesList();
+
+            textBoxBackgroundDefault = schemeNameTextBox.Background;
+            buttonBackgroundDefault = specifyFilesPathButton.Background;
         }
 
         public void UpdateTypesList()
@@ -119,6 +122,8 @@ namespace Вязание.Сборник_схем
                 var fileUri = new Uri(myDialog.FileName);
                 var appUri = new Uri(System.Reflection.Assembly.GetEntryAssembly().Location);
                 filesPathTextBox.Text = appUri.MakeRelativeUri(fileUri).ToString();
+
+                specifyFilesPathButton.Background = buttonBackgroundDefault;
             }
         }
 
@@ -135,6 +140,8 @@ namespace Вязание.Сборник_схем
                 newPreviewImagePath = myDialog.FileName;
                 previewImage.Source = BitmapFromUri(new Uri(newPreviewImagePath)); //new BitmapImage(new Uri(newPreviewImagePath));
                 previewImage.Opacity = 1;
+
+                specifyPreviewImage.Background = buttonBackgroundDefault;
             }
         }
 
@@ -160,34 +167,53 @@ namespace Вязание.Сборник_схем
             if (schemeTypeComboBox.SelectedIndex == -1)
             {
                 MessageBox.Show(this, "Не выбран тип изделия", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                schemeTypeComboBox.IsDropDownOpen = true;
                 return;
             }
-            if (schemeNameTextBox.Text.Length <= 1
-                || schemeNameTextBox.Text == "название схемы...")
+            if (schemeNameTextBox.Text.Length < 1)
             {
                 MessageBox.Show(this, "Название схемы не может быть пустым", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                schemeNameTextBox.Focus();
+                UpdateTextBoxBackground(schemeNameTextBox);
                 return;
             }
             if (databaseManager.schemesCollection.FindOne(Query.EQ("Name", schemeNameTextBox.Text)) != null
                 && !(editingMode && scheme.Name == schemeNameTextBox.Text)) // редактируем и имя осталось то же самое
             {
                 MessageBox.Show(this, "Схема с таким названием уже имеется", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                schemeNameTextBox.Focus();
+                schemeNameTextBox.Background = backgroundError;
                 return;
             }
             if (databaseManager.schemeTypesCollection.FindOne(Query.EQ("Name", schemeNameTextBox.Text)) != null
                 && !(editingMode && scheme.Name == schemeNameTextBox.Text)) // редактируем и имя осталось то же самое
             {
                 MessageBox.Show(this, "Название схемы не может совпадать с Типом изделия", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                schemeNameTextBox.Focus();
+                schemeNameTextBox.Background = backgroundError;
                 return;
             }
-            if (filesPathTextBox.Text.Length <= 1)
+            if (hyperlinkToSourceTextBox.Text.Length < "http://#.##".Length
+                && linkOnlyCheckBox.IsChecked.Value)
             {
-                MessageBox.Show(this, "Не указан путь к файлу(-ам) с описанием", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(this, "Не указан адрес Интернет-ресурса", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                hyperlinkToSourceTextBox.Focus();
+                hyperlinkToSourceTextBox.Background = backgroundError;
+                return;
+            }
+            if (filesPathTextBox.Text.Length <= 1
+                && !linkOnlyCheckBox.IsChecked.Value)
+            {
+                MessageBox.Show(this, "Не указан путь к файлу или папке с описанием", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                specifyFilesPathButton.Focus();
+                specifyFilesPathButton.Background = backgroundError;
                 return;
             }
             if (previewImage.Opacity < 1)
             {
                 MessageBox.Show(this, "Не указано изображение в качестве иллюстрации", "Ошибка!", MessageBoxButton.OK, MessageBoxImage.Warning);
+                specifyPreviewImage.Focus();
+                specifyPreviewImage.Background = backgroundError;
                 return;
             }
 
@@ -247,6 +273,51 @@ namespace Вязание.Сборник_схем
         {
             if (e.Key == Key.Escape)
                 CancelButton_Click(this, new RoutedEventArgs());
+        }
+
+        private void LinkOnlyCheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            descFileLabel.IsEnabled = false;
+            specifyFilesPathButton.IsEnabled = false;
+            filesPathTextBox.Text = "";
+            filesPathTextBox.IsEnabled = false;
+        }
+
+        private void LinkOnlyCheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            descFileLabel.IsEnabled = true;
+            specifyFilesPathButton.IsEnabled = true;
+            filesPathTextBox.IsEnabled = true;
+            hyperlinkToSourceTextBox.Background = textBoxBackgroundDefault;
+        }
+
+        private void UpdateTextBoxBackground(TextBox textBox)
+        {
+            if (textBox.Text.Length > 0)
+                textBox.Background = textBoxBackgroundDefault;
+            else
+                textBox.Background = backgroundError;
+        }
+
+        private void SchemeNameTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            schemeNameTextBox.Background = textBoxBackgroundDefault;
+        }
+
+        private void SchemeNameTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            UpdateTextBoxBackground(sender as TextBox);
+        }
+
+        private void HyperlinkToSourceTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            hyperlinkToSourceTextBox.Background = textBoxBackgroundDefault;
+        }
+
+        private void HyperlinkToSourceTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (linkOnlyCheckBox.IsChecked.Value)
+                UpdateTextBoxBackground(sender as TextBox);
         }
     }
 }
